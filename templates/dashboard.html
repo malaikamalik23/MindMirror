@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+  body {
+    background-color: #ffeef3;
+    transition: background-color 0.5s ease;
+    background-image: url('/static/bg-soft-pink.jpg'); /* Optional soft pattern */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '😊 😌 ❤️ 🌸 💬 ';
+    position: fixed;
+    top: 0;
+    left: 0;
+    font-size: 2.5rem;
+    opacity: 0.05;
+    width: 100%;
+    white-space: nowrap;
+    animation: floatEmojis 30s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes floatEmojis {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  h3 {
+    font-weight: bold;
+    color: #d6336c;
+    text-align: center;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .list-group-item {
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    margin-bottom: 0.75rem;
+    background-color: #fff0f5;
+    color: #c2185b;
+    border: 1px solid #f8c6d8;
+    box-shadow: 0 3px 10px rgba(255, 182, 193, 0.15);
+    position: relative;
+  }
+
+  .list-group-item:hover {
+    background-color: #ffc9de;
+    transform: translateX(5px);
+    font-weight: 500;
+    color: #880e4f;
+    box-shadow: 0 4px 14px rgba(255, 105, 135, 0.2);
+  }
+
+  .list-group-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    color: #c2185b;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .list-group-item:hover::after {
+    opacity: 1;
+  }
+</style>
+
+<div class="container my-5 animate__animated animate__fadeInUp">
+  <h3 class="mb-3">🌸 Wellness Tools</h3>
+  <p class="text-muted">Choose what your heart needs today:</p>
+
+      <div class="list-group">
+    <a href="{{ url_for('journal') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-1s" data-tooltip="Reflect & write your thoughts">
+      📝 Write a Journal
+    </a>
+    <a href="{{ url_for('chat') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-2s" data-tooltip="Chat with MindMirror">
+      💬 AI Chat Support
+    </a>
+    <a href="{{ url_for('mood_tracker') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-3s" data-tooltip="Track how you feel today">
+      📊 Mood Tracker
+    </a>
+    <a href="{{ url_for('daily_reflection') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-4s" data-tooltip="Log your daily highs & lows">
+      📅 Daily Reflection
+    </a>
+    <a href="{{ url_for('affirmations') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-4_5s" data-tooltip="Read positive affirmations for your heart">
+      🌟 Affirmations
+    </a>
+    <a href="{{ url_for('new_session') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-5s" data-tooltip="Start fresh with a new session">
+      🔁 New Session
+    </a>
+  </div>
+</div>
+
+{% endblock %}

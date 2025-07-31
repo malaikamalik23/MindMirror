@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+    background-color: #fff7fb;
+  }
+
+  .affirmation-container {
+    max-width: 800px;
+    margin: 40px auto;
+    text-align: center;
+  }
+
+  h3 {
+    color: #ec407a;
+    font-weight: bold;
+    margin-bottom: 25px;
+  }
+
+  .card {
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.6s ease;
+  }
+
+  .card:hover {
+    transform: scale(1.02);
+    transition: 0.3s ease;
+  }
+
+  .affirmation-text {
+    font-size: 1.2rem;
+    color: #6a1b9a;
+    font-weight: 500;
+  }
+
+  .refresh-btn {
+    background-color: #f48fb1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1rem;
+    transition: 0.3s ease;
+    margin-top: 15px;
+  }
+
+  .refresh-btn:hover {
+    background-color: #ec407a;
+  }
+
+</style>
+
+<div class="affirmation-container animate__animated animate__fadeIn">
+  <h3>🌟 Daily Affirmations</h3>
+
+  <div id="affirmationCard" class="card">
+    <p id="affirmationText" class="affirmation-text">You are doing better than you think 🌸</p>
+  </div>
+
+  <button class="refresh-btn" onclick="newAffirmation()">🔄 Show Another</button>
+</div>
+
+<script>
+  const affirmations = [
+    "You are doing better than you think 🌸",
+    "You are worthy of love and kindness 💖",
+    "Your feelings are valid 💗",
+    "You have the strength to get through this 🌈",
+    "Every step you take matters ✨",
+    "You are enough, just as you are 💫",
+    "Healing takes time — and you're doing great 🕊️",
+    "Your voice matters, your story matters 📖",
+    "It’s okay to rest. You deserve it 😌",
+    "You bring light into the lives of others ☀️"
+  ];
+
+  function newAffirmation() {
+    const random = affirmations[Math.floor(Math.random() * affirmations.length)];
+    document.getElementById('affirmationText').textContent = random;
+  }
+</script>
+
+{% endblock %}

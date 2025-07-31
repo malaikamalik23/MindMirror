@@ -1,0 +1,273 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+  body::before {
+    content: "💬 🧠 💗 🌸 🌈 😊 ✨ ";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    font-size: 2.3rem;
+    opacity: 0.035;
+    white-space: nowrap;
+    animation: floatEmojis 60s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  @keyframes floatEmojis {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  body {
+    background-color: #fff7fb;
+    transition: background-color 0.6s ease;
+  }
+
+  .container {
+    max-width: 800px;
+    z-index: 1;
+    position: relative;
+  }
+
+  h3 {
+    text-align: center;
+    font-weight: bold;
+    color: #ec407a;
+    margin-bottom: 25px;
+  }
+
+  .card {
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-primary {
+    background-color: #ff85a2;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #ff5c87;
+  }
+
+  .btn-outline-danger {
+    border-color: #f06292;
+    color: #f06292;
+  }
+
+  .btn-outline-danger:hover {
+    background-color: #f06292;
+    color: white;
+  }
+
+  .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    transition: all 0.3s ease;
+    margin-left: 6px;
+  }
+
+  .user-msg, .ai-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1.1rem;
+    animation: fadeInUp 0.5s ease;
+  }
+
+  .msg-text {
+    background: #fce4ec;
+    padding: 0.85rem;
+    border-radius: 12px;
+    flex-grow: 1;
+    position: relative;
+  }
+
+  .user-msg .msg-text {
+    background: #ffe0f0;
+  }
+
+  .msg-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f8bbd0;
+  }
+
+  #chatBox {
+    max-height: 320px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    padding-right: 5px;
+  }
+
+  .spinner {
+    margin: 10px auto;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid #ffd4e5;
+    border-top: 3px solid #ec407a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .clear-btn {
+    float: right;
+    font-size: 0.85rem;
+    margin-top: -10px;
+    margin-bottom: 10px;
+  }
+
+</style>
+
+<div class="container mt-5 animate__animated animate__fadeIn">
+  <h3 class="animate__animated animate__fadeInDown">💗 Talk to MindMirror</h3>
+
+  <!-- Chat Form -->
+  <div class="card p-4 mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+    <form id="chat-form">
+      <div class="mb-3">
+        <label for="userInput" class="form-label">Your Message:</label>
+        <textarea id="userInput" class="form-control" rows="3" placeholder="How are you feeling?" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Send 💌</button>
+    </form>
+  </div>
+
+  <!-- Conversation Box -->
+  <div class="card p-4 animate__animated animate__fadeInUp animate__delay-2s">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5>📝 Your Conversation</h5>
+      <button id="clearChat" class="btn btn-outline-danger btn-sm clear-btn animate__animated animate__fadeIn">
+        🧼 Clear All
+      </button>
+    </div>
+    <div id="chatBox" class="animate__animated animate__fadeInUp">
+      <div class="text-muted">Start the conversation above...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Script -->
+<script>
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("userInput");
+  const chatBox = document.getElementById("chatBox");
+  const clearBtn = document.getElementById("clearChat");
+
+  function createMsg(type, text, id) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `${type}-msg`;
+    msgDiv.dataset.id = id;
+
+    const avatar = document.createElement("img");
+    avatar.className = "msg-avatar";
+    avatar.src = type === "user" ? "/static/user.png" : "/static/ai.png";
+    avatar.alt = type;
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "msg-text";
+    textDiv.innerHTML = `<strong>${type === "user" ? "You" : "MindMirror"}:</strong> 
+      <span class="typing-text">${text}</span>
+      <div class="mt-2 text-end">
+        <button class="btn btn-outline-secondary btn-sm edit-btn">Edit</button>
+        <button class="btn btn-outline-danger btn-sm delete-btn">Delete</button>
+      </div>`;
+
+    msgDiv.appendChild(avatar);
+    msgDiv.appendChild(textDiv);
+    chatBox.appendChild(msgDiv);
+  }
+
+  function typingEffect(element, text, speed = 25) {
+    let i = 0;
+    element.textContent = "";
+    function type() {
+      if (i < text.length) {
+        element.textContent += text.charAt(i++);
+        setTimeout(type, speed);
+      }
+    }
+    type();
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    const msgId = Date.now();
+    createMsg("user", userText, msgId);
+
+    const spinner = document.createElement("div");
+    spinner.className = "spinner";
+    spinner.id = "loadingSpinner";
+    chatBox.appendChild(spinner);
+
+    input.value = "";
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText }),
+      });
+
+      const data = await res.json();
+      const reply = data.reply || "Sorry, I didn’t get that.";
+
+      spinner.remove();
+      createMsg("ai", "", msgId + "-ai");
+
+      const aiTextEl = chatBox.querySelector(`[data-id="${msgId + '-ai'}"] .typing-text`);
+      typingEffect(aiTextEl, reply);
+    } catch (error) {
+      spinner.remove();
+      createMsg("ai", "Sorry, I couldn’t respond right now. Please try again later.", msgId + "-ai");
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  chatBox.addEventListener("click", (e) => {
+    const msg = e.target.closest(".user-msg, .ai-msg");
+    if (!msg) return;
+
+    if (e.target.classList.contains("delete-btn")) {
+      msg.remove();
+    }
+
+    if (e.target.classList.contains("edit-btn")) {
+      const content = msg.querySelector(".typing-text");
+      const newText = prompt("Edit your message:", content.textContent);
+      if (newText !== null) content.textContent = newText;
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    chatBox.innerHTML = `<div class="text-muted">Conversation cleared.</div>`;
+  });
+</script>
+
+{% endblock %}

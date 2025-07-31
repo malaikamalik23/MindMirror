@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>{% if title %}Mind-Scribber – {{ title }}{% else %}Mind-Scribber – AI Mental Health Tracker{% endif %}</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="toast align-items-center text-white bg-{{ 'success' if category=='success' else 'danger' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+          <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<script>
+  // Bootstrap Toast Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    toastElList.forEach(toastEl => new bootstrap.Toast(toastEl).show())
+  });
+</script>
+
+<!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #fff0f5;
+      color: #333;
+    }
+
+    .navbar {
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      color: #ffffff !important;
+    }
+
+    .navbar-nav .nav-link {
+      color: #fff !important;
+      margin-right: 10px;
+      font-weight: 500;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: #ffebf0 !important;
+    }
+
+    .container {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .alert {
+      border-radius: 12px;
+    }
+
+    .btn-theme {
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+    }
+
+    .btn-theme:hover {
+      background-color: #ff85a2;
+      color: white;
+      transform: scale(1.03);
+      transition: 0.2s ease-in-out;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .rounded-card {
+      border-radius: 20px !important;
+      box-shadow: 0 6px 20px rgba(255, 192, 203, 0.2);
+    }
+
+    .modal-content {
+      border-radius: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">🧠 Mind-Scribber</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">🏠 Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('about') }}">📖 About</a>
+          </li>
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('journal') }}">📓 Journal</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('chat') }}">💬 AI Chat</a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <ul class="navbar-nav">
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">🔐 Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('signup') }}">✨ Signup</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main role="main" class="container mt-5 pt-4">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} mt-3" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

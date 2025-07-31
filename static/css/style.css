@@ -1,0 +1,124 @@
+/* ===================== Emoji Background ===================== */
+body::before {
+  content: '🌸 🧠 😊 💖 🌈 ✨ 😴 🌼';
+  position: fixed;
+  font-size: 2.5rem;
+  animation: floatEmojis 40s linear infinite;
+  white-space: nowrap;
+  width: 100%;
+  top: 20px;
+  left: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatEmojis {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ===================== Fade Animations ===================== */
+img.fade-chart {
+  animation: fadeInChart 1.2s ease-in-out;
+}
+
+@keyframes fadeInChart {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ===================== Auth & Journal Cards ===================== */
+.auth-container {
+  max-width: 700px;
+  margin: auto;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.auth-card,
+.journal-entry {
+  background: #fff0f5;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #ffb6c1;
+}
+
+.auth-card h2,
+.auth-card h3,
+h3,
+legend {
+  color: #c35ca2;
+  font-weight: 600;
+}
+
+/* ===================== Button Themes ===================== */
+.btn-theme {
+  background-color: #ffb6c1;
+  color: white;
+  border: none;
+  transition: 0.3s ease;
+}
+
+.btn-theme:hover {
+  background-color: #ff85a2;
+  transform: scale(1.03);
+}
+
+.btn-outline-theme {
+  border: 2px solid #ffb6c1;
+  color: #c35ca2;
+}
+
+.btn-outline-theme:hover {
+  background-color: #ffb6c1;
+  color: white;
+}
+
+/* ===================== Form & Controls ===================== */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #ffc4d6;
+}
+
+.form-control:focus {
+  border-color: #ffb6c1;
+  box-shadow: 0 0 0 0.1rem rgba(255, 182, 193, 0.3);
+}
+
+textarea.form-control {
+  resize: none;
+}
+
+/* ===================== Alerts ===================== */
+.alert-info {
+  background-color: #ffe3ed;
+  border-color: #ffb6c1;
+  color: #c35ca2;
+}
+
+/* ===================== Navbar ===================== */
+.navbar {
+  background-color: #ffb6c1 !important;
+}
+
+.navbar-brand, .navbar-nav .nav-link {
+  color: white !important;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ffe3ed !important;
+}
+
+/* ===================== Media Queries ===================== */
+@media screen and (max-width: 768px) {
+  .auth-card {
+    padding: 25px;
+  }
+
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}

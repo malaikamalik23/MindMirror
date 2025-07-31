@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4 auth-container">
+  <div class="auth-card animate__animated animate__fadeIn">
+    <form method="POST" action="" autocomplete="off">
+      {{ form.hidden_tag() }}
+      <fieldset class="form-group">
+        <legend class="mb-4 text-center">🌸 Create Your Mind‑Scribber Account</legend>
+
+        <!-- Username -->
+        <div class="form-group">
+          {{ form.username.label(class="form-control-label") }}
+          {% if form.username.errors %}
+            {{ form.username(class="form-control is-invalid", placeholder="e.g. malaika29") }}
+            <div class="invalid-feedback">
+              {% for error in form.username.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% else %}
+            {{ form.username(class="form-control", placeholder="e.g. malaika29") }}
+          {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="form-group mt-3">
+          {{ form.email.label(class="form-control-label") }}
+          {% if form.email.errors %}
+            {{ form.email(class="form-control is-invalid", placeholder="you@example.com") }}
+            <div class="invalid-feedback">
+              {% for error in form.email.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% else %}
+            {{ form.email(class="form-control", placeholder="you@example.com") }}
+          {% endif %}
+        </div>
+
+        <!-- Password -->
+        <div class="form-group mt-3">
+          {{ form.password.label(class="form-control-label") }}
+          {% if form.password.errors %}
+            {{ form.password(class="form-control is-invalid", id="password", placeholder="Choose a strong password") }}
+            <div class="invalid-feedback">
+              {% for error in form.password.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% else %}
+            {{ form.password(class="form-control", id="password", placeholder="Choose a strong password") }}
+          {% endif %}
+          <small id="strengthMsg" class="form-text text-muted mt-1"></small>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group mt-3">
+          {{ form.confirm_password.label(class="form-control-label") }}
+          {% if form.confirm_password.errors %}
+            {{ form.confirm_password(class="form-control is-invalid", placeholder="Repeat your password") }}
+            <div class="invalid-feedback">
+              {% for error in form.confirm_password.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% else %}
+            {{ form.confirm_password(class="form-control", placeholder="Repeat your password") }}
+          {% endif %}
+        </div>
+      </fieldset>
+
+      <div class="form-group mt-4">
+        {{ form.submit(class="btn btn-theme btn-block") }}
+      </div>
+    </form>
+
+    <div class="border-top pt-3 text-center mt-4">
+      <small class="text-muted">Already have an account?
+        <a href="{{ url_for('login') }}" class="text-decoration-none text-primary">Log In</a>
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Password Strength Script -->
+<script>
+  const passwordInput = document.getElementById("password");
+  const strengthMsg = document.getElementById("strengthMsg");
+
+  passwordInput?.addEventListener("input", () => {
+    const value = passwordInput.value;
+    let strength = "Too short";
+    let color = "text-danger";
+
+    const lengthOK = value.length > 5;
+    const hasUpper = /[A-Z]/.test(value);
+    const hasLower = /[a-z]/.test(value);
+    const hasDigit = /\d/.test(value);
+    const hasSymbol = /[^A-Za-z0-9]/.test(value);
+
+    if (lengthOK && hasUpper && hasLower && hasDigit && hasSymbol) {
+      strength = "Strong password 💪";
+      color = "text-success";
+    } else if (lengthOK && (hasDigit || hasSymbol)) {
+      strength = "Medium strength 🤔";
+      color = "text-warning";
+    }
+
+    strengthMsg.textContent = strength;
+    strengthMsg.className = "form-text mt-1 " + color;
+  });
+</script>
+{% endblock %}

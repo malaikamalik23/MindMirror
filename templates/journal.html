@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+    background-color: #fff0f5;
+  }
+
+  h3, h5, label {
+    color: #2e2e2e;
+  }
+
+  .form-label {
+    font-weight: 500;
+  }
+
+  .btn-theme {
+    background-color: #ffc0cb;
+    color: #fff;
+    border: none;
+  }
+
+  .btn-theme:hover {
+    background-color: #ff99aa;
+  }
+
+  .journal-entry {
+    background-color: #fff;
+    border: 2px solid #ffe6ee;
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .journal-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .filter-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed #ffc0cb;
+  }
+</style>
+
+<div class="container mt-5">
+  <div class="row">
+    <!-- Left: Journal Form -->
+    <div class="col-md-6 mb-4">
+      <h3 class="fw-bold mb-3">📝 New Journal Entry</h3>
+      <form method="POST">
+        <div class="form-group mb-3">
+          <label class="form-label">🎭 Select Mood</label>
+          <select name="mood" class="form-control rounded-pill">
+            <option>😊 Happy</option>
+            <option>😢 Sad</option>
+            <option>😠 Angry</option>
+            <option>😰 Anxious</option>
+            <option>😌 Calm</option>
+          </select>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label">🧠 Write Your Thoughts</label>
+          <textarea name="content" class="form-control rounded-4" rows="4" placeholder="What’s on your mind today?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-theme w-100 rounded-pill">💾 Save Entry</button>
+      </form>
+    </div>
+
+    <!-- Right: Filter + Journal Entries -->
+    <div class="col-md-6">
+      <div class="filter-section">
+        <h5 class="fw-semibold mb-3">🔍 Filter Entries</h5>
+        <form method="GET" action="{{ url_for('journal') }}">
+          <div class="d-flex gap-2 align-items-center">
+            <select name="filter_mood" class="form-select w-auto rounded-pill">
+              <option value="">All Moods</option>
+              <option value="😊 Happy">😊 Happy</option>
+              <option value="😢 Sad">😢 Sad</option>
+              <option value="😠 Angry">😠 Angry</option>
+              <option value="😰 Anxious">😰 Anxious</option>
+              <option value="😌 Calm">😌 Calm</option>
+            </select>
+            <button class="btn btn-secondary rounded-pill" type="submit">Apply</button>
+          </div>
+        </form>
+      </div>
+
+      {% for entry in entries %}
+        <div class="journal-entry p-3 mb-4 fade-in">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ entry.mood }}</strong>
+              <small class="text-muted">• {{ entry.timestamp.strftime('%b %d, %Y – %H:%M') }}</small>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-toggle="modal" data-bs-target="#editModal{{ entry.id }}">✏️</button>
+              <form method="POST" action="{{ url_for('delete_entry', entry_id=entry.id) }}" style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">🗑️</button>
+              </form>
+            </div>
+          </div>
+          <p class="mt-2 mb-2">{{ entry.content }}</p>
+          {% if entry.response %}
+            <div class="alert alert-info rounded-4 py-2 px-3"><strong>AI:</strong> {{ entry.response }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal{{ entry.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ entry.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="POST" action="{{ url_for('edit_entry', entry_id=entry.id) }}">
+                <div class="modal-header">
+                  <h5 class="modal-title">✏️ Edit Entry</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group mb-2">
+                    <label>Mood</label>
+                    <select name="mood" class="form-control">
+                      <option {% if entry.mood == "😊 Happy" %}selected{% endif %}>😊 Happy</option>
+                      <option {% if entry.mood == "😢 Sad" %}selected{% endif %}>😢 Sad</option>
+                      <option {% if entry.mood == "😠 Angry" %}selected{% endif %}>😠 Angry</option>
+                      <option {% if entry.mood == "😰 Anxious" %}selected{% endif %}>😰 Anxious</option>
+                      <option {% if entry.mood == "😌 Calm" %}selected{% endif %}>😌 Calm</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" class="form-control" rows="3">{{ entry.content }}</textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary rounded-pill">Update</button>
+                  <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  {% if entries.pages > 1 %}
+  <nav aria-label="Journal Pagination">
+    <ul class="pagination justify-content-center mt-4">
+      {% if entries.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('journal', page=entries.prev_num, filter_mood=filter_mood) }}">Previous</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
+      {% endif %}
+
+      {% for page_num in entries.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if page_num %}
+          {% if page_num == entries.page %}
+          <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+          {% else %}
+          <li class="page-item"><a class="page-link" href="{{ url_for('journal', page=page_num, filter_mood=filter_mood) }}">{{ page_num }}</a></li>
+          {% endif %}
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if entries.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('journal', page=entries.next_num, filter_mood=filter_mood) }}">Next</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+{% endblock %}
