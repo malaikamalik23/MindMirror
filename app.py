@@ -9,6 +9,7 @@ from transformers import AutoTokenizer, AutoModel
 from datetime import datetime
 import matplotlib.pyplot as plt
 import io
+import os
 import base64
 
 # Load environment variables
@@ -339,3 +340,7 @@ def delete_entry(entry_id):
 @login_required
 def new_session():
     return render_template('new_session.html')  # Make sure new_session.html exists
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
