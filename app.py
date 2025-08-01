@@ -5,6 +5,7 @@ from models import db, User, JournalEntry, DailyReflection, MoodLog
 from forms import SignupForm, LoginForm, DailyReflectionForm
 from dotenv import load_dotenv
 from flask_migrate import Migrate
+from transformers import AutoTokenizer, AutoModel
 from datetime import datetime
 import matplotlib.pyplot as plt
 import io
@@ -20,6 +21,9 @@ migrate = Migrate(app, db)
 
 with app.app_context():
     db.create_all()
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+model = AutoModel.from_pretrained("bert-base-uncased")
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -335,6 +339,3 @@ def delete_entry(entry_id):
 @login_required
 def new_session():
     return render_template('new_session.html')  # Make sure new_session.html exists
-
-if __name__ == '__main__':
-    app.run(debug=True)
