@@ -5,7 +5,6 @@ from models import db, User, JournalEntry, DailyReflection, MoodLog
 from forms import SignupForm, LoginForm, DailyReflectionForm
 from dotenv import load_dotenv
 from flask_migrate import Migrate
-from transformers import AutoTokenizer, AutoModel
 from datetime import datetime
 import matplotlib.pyplot as plt
 import io
@@ -22,9 +21,6 @@ migrate = Migrate(app, db)
 
 with app.app_context():
     db.create_all()
-
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-model = AutoModel.from_pretrained("bert-base-uncased")
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -126,21 +122,9 @@ def journal():
     if request.method == 'POST':
         content = request.form['content']
         mood = request.form['mood']
-        try:
-            input_ids = tokenizer.encode(content + tokenizer.eos_token, return_tensors="pt")
-            chat_history_ids = model.generate(
-                input_ids,
-                max_length=1000,
-                pad_token_id=tokenizer.eos_token_id,
-                do_sample=True,
-                top_k=50,
-                top_p=0.95
-            )
-            ai_response = tokenizer.decode(chat_history_ids[:, input_ids.shape[-1]:][0], skip_special_tokens=True)
-        except Exception:
-            ai_response = "AI reflection unavailable."
 
-        entry = JournalEntry(content=content, mood=mood, user_id=current_user.id, response=ai_response)
+        # No AI reflection now
+        entry = JournalEntry(content=content, mood=mood, user_id=current_user.id, response=None)
         db.session.add(entry)
         db.session.commit()
         flash("Journal entry saved!", "success")
@@ -150,9 +134,13 @@ def journal():
     filter_mood = request.args.get('filter_mood')
     per_page = 5
     if filter_mood:
-        entries = JournalEntry.query.filter_by(user_id=current_user.id, mood=filter_mood).order_by(JournalEntry.timestamp.desc()).paginate(page=page, per_page=per_page)
+        entries = JournalEntry.query.filter_by(user_id=current_user.id, mood=filter_mood).order_by(
+            JournalEntry.timestamp.desc()
+        ).paginate(page=page, per_page=per_page)
     else:
-        entries = JournalEntry.query.filter_by(user_id=current_user.id).order_by(JournalEntry.timestamp.desc()).paginate(page=page, per_page=per_page)
+        entries = JournalEntry.query.filter_by(user_id=current_user.id).order_by(
+            JournalEntry.timestamp.desc()
+        ).paginate(page=page, per_page=per_page)
 
     return render_template('journal.html', entries=entries, filter_mood=filter_mood)
 
