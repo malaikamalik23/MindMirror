@@ -104,7 +104,8 @@
       <div class="modal fade" id="editModal{{ r.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ r.id }}" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form method="POST" action="{{ url_for('edit_reflection', reflection_id=r.id) }}" onsubmit="showToast('Reflection updated!')">
+            <form method="POST" action="{{ url_for('edit_reflection', reflection_id=r.id) }}">
+              {{ form.csrf_token }}
               <div class="modal-header">
                 <h5 class="modal-title">📝 Edit Reflection</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -184,17 +185,14 @@
     return true;
   }
 
+  // The page has no #toast element, so this used to throw an error.
+  // Saved/deleted messages are shown by the layout's flash alert instead.
   function showToast(message) {
     const toastElement = document.getElementById('toast');
-    const toastBody = document.getElementById('toast-body');
-    toastBody.textContent = message;
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
+    if (!toastElement) return;
+    document.getElementById('toast-body').textContent = message;
+    new bootstrap.Toast(toastElement).show();
   }
-
-  document.getElementById('reflectionForm')?.addEventListener('submit', function () {
-    setTimeout(() => showToast('Reflection saved!'), 500);
-  });
 </script>
 
 {% endblock %}

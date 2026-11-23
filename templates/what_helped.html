@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .wh-title { color: #2e7d5b; font-weight: 700; }
+  .wh-card { background: #fff; border-radius: 20px; box-shadow: 0 6px 20px rgba(120, 200, 160, 0.18); }
+  .wh-idea { background: #effaf4; border: 1px solid #cdeedd; border-radius: 14px; padding: .6rem .9rem; }
+  .wh-mine { background: #fff7e0; border-color: #f5dc96; }
+  .wh-bar { height: 8px; border-radius: 4px; background: #e8f5ee; overflow: hidden; }
+  .wh-bar span { display: block; height: 100%; background: #5cb88a; }
+</style>
+
+<div class="container my-5">
+  <h3 class="wh-title text-center mb-1">🌿 What Helped Me</h3>
+  <p class="text-center text-muted mb-4">A memory bank of what actually works for you, so it's easier to find on hard days.</p>
+
+  <div class="row g-4">
+    <!-- Suggestions -->
+    <div class="col-lg-7">
+      <div class="wh-card p-4 mb-4">
+        <h5 class="mb-3">Feeling…</h5>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for m in moods %}
+            <a href="{{ url_for('what_helped', mood=m) }}"
+               class="btn btn-sm rounded-pill {{ 'btn-success' if m == selected_mood else 'btn-outline-success' }}">{{ m }}</a>
+          {% endfor %}
+        </div>
+
+        {% if mine %}
+          <h6 class="fw-bold">⭐ What has helped you before when you felt this way</h6>
+          <div class="d-grid gap-2 mb-4">
+            {% for r in mine %}
+              <div class="wh-idea wh-mine d-flex justify-content-between">
+                <span>{{ r.activity }}</span>
+                <span class="small text-muted">helped {{ r.avg }}/5 · {{ r.count }}×</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <h6 class="fw-bold">💡 {{ 'Other ideas to try' if mine else 'Ideas to try' }}</h6>
+        <div class="d-grid gap-2">
+          {% for idea in ideas %}<div class="wh-idea">{{ idea }}</div>{% endfor %}
+        </div>
+      </div>
+
+      {% if overall %}
+      <div class="wh-card p-4">
+        <h5 class="mb-3">📊 What helps you most overall</h5>
+        {% for r in overall %}
+          <div class="mb-2">
+            <div class="d-flex justify-content-between small"><span>{{ r.activity }}</span><span>{{ r.avg }}/5 ({{ r.count }}×)</span></div>
+            <div class="wh-bar" role="img" aria-label="{{ r.avg }} out of 5"><span style="width: {{ (r.avg / 5 * 100)|round }}%"></span></div>
+          </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Log form + recent -->
+    <div class="col-lg-5">
+      <div class="wh-card p-4 mb-4">
+        <h5 class="mb-3">📝 Log something you tried</h5>
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.activity.label(class="form-label") }}
+            {{ form.activity(class="form-control", placeholder="e.g. Walked around the block") }}
+            {% for e in form.activity.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">{{ form.mood_before.label(class="form-label") }}{{ form.mood_before(class="form-select") }}</div>
+          <div class="mb-3">{{ form.helped_rating.label(class="form-label") }}{{ form.helped_rating(class="form-select") }}</div>
+          {{ form.submit(class="btn btn-success w-100 rounded-pill") }}
+        </form>
+      </div>
+
+      <h6 class="fw-bold">Recent</h6>
+      {% for log in recent %}
+        <div class="wh-card p-3 mb-2 d-flex justify-content-between align-items-start">
+          <div>
+            <div>{{ log.activity }}</div>
+            <div class="small text-muted">{{ log.mood_before }} · helped {{ log.helped_rating }}/5 · {{ log.created_at.strftime('%d %b') }}</div>
+          </div>
+          <form method="POST" action="{{ url_for('delete_coping_log', log_id=log.id) }}" onsubmit="return confirm('Delete this log?');">
+            {{ form.csrf_token }}
+            <button class="btn btn-link btn-sm text-danger p-0">Delete</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="text-muted small">Nothing logged yet. Next time something helps, even a little, write it down here.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
