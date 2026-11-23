@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .kn-title { color: #d6336c; font-weight: 700; }
+  .kn-note {
+    background: #fffaf0; border-radius: 6px 24px 24px 24px; padding: 2rem;
+    box-shadow: 0 8px 24px rgba(255, 182, 193, 0.25); font-size: 1.25rem; line-height: 1.6;
+    position: relative;
+  }
+  .kn-note::before { content: "💌"; position: absolute; top: -18px; left: -10px; font-size: 2rem; }
+  .kn-card { background: #fff; border-radius: 20px; box-shadow: 0 6px 20px rgba(255, 192, 203, 0.2); }
+</style>
+
+<div class="container my-5" style="max-width: 720px;">
+  <h3 class="kn-title text-center mb-1">💌 Kind Notes</h3>
+  <p class="text-center text-muted mb-4">Anonymous kindness from other MindMirror users. Nobody knows who wrote what, not even us.</p>
+
+  <div class="kn-note mb-3">
+    {% if note %}{{ note.content }}{% else %}No notes yet. Be the first to leave one below.{% endif %}
+  </div>
+  <div class="text-center mb-5">
+    <a class="btn btn-outline-secondary rounded-pill" href="{{ url_for('kind_notes') }}">🔀 Show me another</a>
+  </div>
+
+  <div class="kn-card p-4">
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+      {{ form.content.label(class="form-label fw-semibold") }}
+      {{ form.content(class="form-control mb-1", rows=3, maxlength=300, placeholder="Something you'd want to hear on a hard day…") }}
+      {% for e in form.content.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      <p class="small text-muted mb-3">Up to 300 characters. Please don't include names, links or contact details.</p>
+      {{ form.submit(class="btn btn-theme rounded-pill w-100") }}
+    </form>
+  </div>
+</div>
+{% endblock %}

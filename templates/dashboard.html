@@ -12,6 +12,7 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    overflow-x: hidden; /* hover tooltips sit to the right of the list and caused sideways scrolling */
   }
 
   body::before {
@@ -95,6 +96,13 @@
   <h3 class="mb-3">🌸 Wellness Tools</h3>
   <p class="text-muted">Choose what your heart needs today:</p>
 
+  {% if new_letters %}
+  <div class="alert alert-warning text-center rounded-4">
+    📬 {{ new_letters }} letter{{ 's' if new_letters > 1 }} from past you just arrived!
+    <a href="{{ url_for('letters') }}" class="alert-link">Open {{ 'them' if new_letters > 1 else 'it' }}</a>
+  </div>
+  {% endif %}
+
       <div class="list-group">
     <a href="{{ url_for('journal') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-1s" data-tooltip="Reflect & write your thoughts">
       📝 Write a Journal
@@ -110,6 +118,18 @@
     </a>
     <a href="{{ url_for('affirmations') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-4_5s" data-tooltip="Read positive affirmations for your heart">
       🌟 Affirmations
+    </a>
+    <a href="{{ url_for('what_helped') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-4s" data-tooltip="Remember what calms you down">
+      🌿 What Helped Me
+    </a>
+    <a href="{{ url_for('letters') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-4s" data-tooltip="Write to yourself, open it later">
+      ✉️ Letters to Future Me
+    </a>
+    <a href="{{ url_for('kind_notes') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-5s" data-tooltip="Give and get anonymous kindness">
+      💌 Kind Notes
+    </a>
+    <a href="{{ url_for('safety_plan') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-5s" data-tooltip="Your plan for hard moments">
+      🆘 My Safety Plan
     </a>
     <a href="{{ url_for('new_session') }}" class="list-group-item list-group-item-action animate__animated animate__fadeInLeft animate__delay-5s" data-tooltip="Start fresh with a new session">
       🔁 New Session

@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .ns-title { color: #d6336c; font-weight: 700; }
+  .ns-card { background: #fff; border-radius: 20px; box-shadow: 0 6px 20px rgba(255, 192, 203, 0.2); }
+  .ns-circle {
+    width: 200px; height: 200px; border-radius: 50%; margin: 1.5rem auto;
+    background: radial-gradient(circle, #ffb6c1 0%, #fde2ea 65%, transparent 70%);
+    transform: scale(.55); transition: transform 4s ease-in-out;
+  }
+  .ns-circle.grow { transform: scale(1); }
+  @media (prefers-reduced-motion: reduce) { .ns-circle { transition: none; } }
+  .ns-next a { border-radius: 16px; }
+</style>
+
+<div class="container my-5 text-center" style="max-width: 640px;">
+  <h3 class="ns-title mb-1">🔁 A Fresh Start</h3>
+  <p class="text-muted mb-4">Let's take one minute to land in this moment before anything else.</p>
+
+  <div class="ns-card p-4 mb-4">
+    <div id="circle" class="ns-circle" aria-hidden="true"></div>
+    <p id="cue" class="fs-4 fw-semibold mb-1" aria-live="polite">Press start when you're ready</p>
+    <p id="count" class="text-muted mb-3">&nbsp;</p>
+    <button id="startBtn" class="btn btn-theme rounded-pill px-4">▶️ Start breathing</button>
+  </div>
+
+  <div id="next" class="ns-next">
+    <h5 class="mb-3">What would help most right now?</h5>
+    <div class="d-grid gap-2">
+      <a class="btn btn-outline-secondary" href="{{ url_for('mood_tracker') }}">📊 Check in with my mood</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('journal') }}">📝 Write it out</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('chat') }}">💬 Talk to MindMirror</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('what_helped') }}">🌿 See what's helped me before</a>
+      <a class="btn btn-outline-danger" href="{{ url_for('safety_plan') }}">🆘 I need help now</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Box-style breathing: in 4s, hold 4s, out 4s, hold 4s, for 4 rounds (~1 minute).
+  const steps = [["Breathe in…", true], ["Hold", true], ["Breathe out…", false], ["Hold", false]];
+  const circle = document.getElementById("circle"), cue = document.getElementById("cue"),
+        count = document.getElementById("count"), btn = document.getElementById("startBtn");
+  let timer = null;
+
+  btn.addEventListener("click", () => {
+    if (timer) return;
+    btn.disabled = true;
+    let i = 0;
+    const rounds = 4;
+    const tick = () => {
+      if (i >= steps.length * rounds) {
+        clearInterval(timer); timer = null;
+        cue.textContent = "Well done. 💗";
+        count.textContent = "Notice how you feel now.";
+        circle.classList.remove("grow");
+        btn.disabled = false; btn.textContent = "🔁 Again";
+        return;
+      }
+      const [text, grow] = steps[i % steps.length];
+      cue.textContent = text;
+      count.textContent = `Round ${Math.floor(i / steps.length) + 1} of ${rounds}`;
+      circle.classList.toggle("grow", grow);
+      i++;
+    };
+    tick();
+    timer = setInterval(tick, 4000);
+  });
+</script>
+{% endblock %}

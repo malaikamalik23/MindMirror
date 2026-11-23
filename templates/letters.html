@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .lt-title { color: #6a4fb3; font-weight: 700; }
+  .lt-card { background: #fff; border-radius: 20px; box-shadow: 0 6px 20px rgba(160, 140, 220, 0.18); }
+  .lt-paper {
+    background: #fffdf7; border: 1px solid #efe6cf; border-radius: 12px; padding: 1.25rem 1.5rem;
+    white-space: pre-wrap; font-family: Georgia, "Times New Roman", serif; line-height: 1.7;
+  }
+  .lt-sealed { background: #f4f0ff; border: 1px dashed #c7b8f0; border-radius: 14px; padding: .8rem 1rem; }
+</style>
+
+<div class="container my-5">
+  <h3 class="lt-title text-center mb-1">✉️ Letters to Future Me</h3>
+  <p class="text-center text-muted mb-4">Write to the person you'll be. The letter stays sealed until the day you choose.</p>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="lt-card p-4">
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.content.label(class="form-label fw-semibold") }}
+            {{ form.content(class="form-control", rows=9, placeholder="What do you hope has changed? What do you want to remember about right now?") }}
+            {% for e in form.content.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.deliver_on.label(class="form-label fw-semibold") }}
+            {{ form.deliver_on(class="form-control", min=min_date) }}
+            {% for e in form.deliver_on.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              {% for label, days in [('1 month', 30), ('6 months', 182), ('1 year', 365)] %}
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" data-days="{{ days }}">{{ label }}</button>
+              {% endfor %}
+            </div>
+          </div>
+          {{ form.submit(class="btn w-100 rounded-pill text-white", style="background:#8a6fd1") }}
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <h5 class="mb-3">📬 Opened letters</h5>
+      {% for l in opened %}
+        <div class="lt-card p-3 mb-3">
+          <div class="d-flex justify-content-between small text-muted mb-2">
+            <span>Written {{ l.created_at.strftime('%d %b %Y') }}</span>
+            <span>Opened {{ l.deliver_at.strftime('%d %b %Y') }}</span>
+          </div>
+          <div class="lt-paper">{{ l.content }}</div>
+          <form method="POST" action="{{ url_for('delete_letter', letter_id=l.id) }}" class="text-end mt-2"
+                onsubmit="return confirm('Delete this letter? This cannot be undone.');">
+            {{ form.csrf_token }}
+            <button class="btn btn-link btn-sm text-danger p-0">Delete</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="text-muted">No letters have arrived yet.</p>
+      {% endfor %}
+
+      <h5 class="mt-4 mb-3">🔒 Still sealed</h5>
+      {% for l in sealed %}
+        <div class="lt-sealed mb-2 d-flex justify-content-between align-items-center">
+          <span>Opens <strong>{{ l.deliver_at.strftime('%d %b %Y') }}</strong> <span class="text-muted small">· written {{ l.created_at.strftime('%d %b %Y') }}</span></span>
+          <form method="POST" action="{{ url_for('delete_letter', letter_id=l.id) }}"
+                onsubmit="return confirm('Delete this sealed letter without reading it?');">
+            {{ form.csrf_token }}
+            <button class="btn btn-link btn-sm text-danger p-0">Delete</button>
+          </form>
+        </div>
+      {% else %}
+        <p class="text-muted">Nothing sealed right now.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('[data-days]').forEach(btn => btn.addEventListener('click', () => {
+    const d = new Date();
+    d.setDate(d.getDate() + Number(btn.dataset.days));
+    document.getElementById('deliver_on').value = d.toISOString().slice(0, 10);
+  }));
+</script>
+{% endblock %}

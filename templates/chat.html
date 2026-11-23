@@ -19,6 +19,13 @@
     pointer-events: none;
   }
 
+  .crisis-msg .msg-text {
+    background: #fff4e5 !important;
+    border: 2px solid #f0a04b;
+    border-radius: 12px;
+    padding: .5rem .75rem;
+  }
+
   @keyframes floatEmojis {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
@@ -188,12 +195,17 @@
 
     const textDiv = document.createElement("div");
     textDiv.className = "msg-text";
-    textDiv.innerHTML = `<strong>${type === "user" ? "You" : "MindMirror"}:</strong> 
-      <span class="typing-text">${text}</span>
-      <div class="mt-2 text-end">
-        <button class="btn btn-outline-secondary btn-sm edit-btn">Edit</button>
-        <button class="btn btn-outline-danger btn-sm delete-btn">Delete</button>
-      </div>`;
+    // Build with textContent, not innerHTML, so typed text is never run as HTML.
+    const who = document.createElement("strong");
+    who.textContent = (type === "user" ? "You" : "MindMirror") + ": ";
+    const span = document.createElement("span");
+    span.className = "typing-text";
+    span.textContent = text;
+    const actions = document.createElement("div");
+    actions.className = "mt-2 text-end";
+    actions.innerHTML = `<button class="btn btn-outline-secondary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-outline-danger btn-sm delete-btn">Delete</button>`;
+    textDiv.append(who, span, actions);
 
     msgDiv.appendChild(avatar);
     msgDiv.appendChild(textDiv);
@@ -240,8 +252,21 @@
       spinner.remove();
       createMsg("ai", "", msgId + "-ai");
 
-      const aiTextEl = chatBox.querySelector(`[data-id="${msgId + '-ai'}"] .typing-text`);
-      typingEffect(aiTextEl, reply);
+      const aiMsg = chatBox.querySelector(`[data-id="${msgId + '-ai'}"]`);
+      const aiTextEl = aiMsg.querySelector(".typing-text");
+      if (data.crisis) {
+        // Show crisis replies in full right away (no typing delay), highlighted,
+        // with a direct link to the safety plan page.
+        aiMsg.classList.add("crisis-msg");
+        aiTextEl.textContent = reply;
+        const help = document.createElement("a");
+        help.href = "{{ url_for('safety_plan') }}";
+        help.className = "btn btn-danger btn-sm mt-2 d-inline-block";
+        help.textContent = "🆘 Open my safety plan and helplines";
+        aiTextEl.after(help);
+      } else {
+        typingEffect(aiTextEl, reply);
+      }
     } catch (error) {
       spinner.remove();
       createMsg("ai", "Sorry, I couldn’t respond right now. Please try again later.", msgId + "-ai");

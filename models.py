@@ -49,8 +49,60 @@ class DailyReflection(db.Model):
 class MoodLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    mood = db.Column(db.String(50), nullable=False)
-    emotions = db.Column(db.String(200))  # Comma-separated
+    mood = db.Column(db.String(50), nullable=False)  # e.g., 'happy', 'anxious'
+    emotions = db.Column(db.String(200))  # comma-separated
+    notes = db.Column(db.Text)  # Optional notes
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
+    
     user = db.relationship('User', backref='mood_logs')
+
+# ── Vault ──────────────────────────────────────────────
+class VaultEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    encrypted_content = db.Column(db.Text, nullable=False)
+    write_and_burn = db.Column(db.Boolean, default=False)
+    viewed = db.Column(db.Boolean, default=False)
+    auto_delete = db.Column(db.Boolean, default=False)
+    expires_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ── Letters to Future Me ───────────────────────────────
+class FutureLetter(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    deliver_at = db.Column(db.DateTime, nullable=False)
+    delivered = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ── Anonymous Support Pool ─────────────────────────────
+class SupportMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    approved = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ── What Helped Me ─────────────────────────────────────
+class CopingLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    activity = db.Column(db.String(200), nullable=False)
+    helped_rating = db.Column(db.Integer)  # 1 to 5
+    mood_before = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ── Emergency Safety Plan ──────────────────────────────
+class SafetyPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    warning_signs = db.Column(db.Text)       # thoughts, moods, situations that signal a crisis
+    coping_strategies = db.Column(db.Text)   # things I can do on my own to feel calmer
+    distractions = db.Column(db.Text)        # people and places that take my mind off things
+    people_to_contact = db.Column(db.Text)   # people I can ask for help (names + numbers)
+    professionals = db.Column(db.Text)       # therapist, doctor, local crisis line
+    safe_environment = db.Column(db.Text)    # how to make my surroundings safer
+    reasons_to_live = db.Column(db.Text)     # what matters most to me
+    helpline_name = db.Column(db.String(120))
+    helpline_number = db.Column(db.String(40))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

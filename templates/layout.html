@@ -10,35 +10,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Toast Container -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="toast align-items-center text-white bg-{{ 'success' if category=='success' else 'danger' }} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
-          <div class="d-flex">
-            <div class="toast-body">{{ message }}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-</div>
+  <!-- Flash messages were shown twice before (a toast here plus an alert below);
+       the alert below is kept. -->
 
-<script>
-  // Bootstrap Toast Initialization
-  document.addEventListener('DOMContentLoaded', () => {
-    const toastElList = [].slice.call(document.querySelectorAll('.toast'))
-    toastElList.forEach(toastEl => new bootstrap.Toast(toastEl).show())
-  });
-</script>
-
-<!-- Bootstrap -->
+  <!-- Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
   <style>
     body {
@@ -127,15 +106,21 @@
           </li>
           {% if current_user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('journal') }}">📓 Journal</a>
+            <a class="nav-link" href="{{ url_for('dashboard') }}">🧭 Dashboard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('chat') }}">💬 AI Chat</a>
+            <a class="nav-link" href="{{ url_for('journal') }}">📓 Journal</a>
           </li>
           {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('chat') }}">💬 Chat</a>
+          </li>
         </ul>
 
         <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link fw-bold" href="{{ url_for('safety_plan') }}">🆘 Get help now</a>
+          </li>
           {% if current_user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a>
@@ -169,7 +154,15 @@
     {% block content %}{% endblock %}
   </main>
 
+  <footer class="container small text-muted py-4 mt-4 border-top">
+    <strong>Need help right now?</strong> If you are in danger or thinking about ending your life, call your
+    local emergency number or find a free, confidential crisis line at
+    <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> (in the US, call or text 988).
+    MindMirror is a self-care companion, not a replacement for professional care.
+  </footer>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
